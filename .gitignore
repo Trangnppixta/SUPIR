@@ -1,0 +1,9 @@
+.venv/
+*.png
+*.jpg
+*.jpeg
+*.txt
+*.ckpt
+*.safetensors
+/output/
+*.pyc
