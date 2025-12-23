@@ -87,10 +87,11 @@ df = pd.read_csv(args.metadata)
 # Process the selected images
 # NOTE: current code does not handling checking whether image is upscaled or not.
 for i, (idx, row) in enumerate(df.iterrows()):
-    img_path = row['image_path']
+    id_image_name = row['image_path']
+    img_path = os.path.join(args.img_dir, id_image_name)
     upscale = row['upscale_factor']
 
-    print(f"Upscaling {os.path.join(args.img_dir, img_path)} with {upscale}")
+    print(f"Upscaling {img_path} with {upscale}")
 
     LQ_ips = Image.open(img_path)
     width, height = LQ_ips.size
