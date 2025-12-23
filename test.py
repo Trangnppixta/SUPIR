@@ -8,7 +8,7 @@ import os
 import shutil
 from glob import glob
 from pathlib import Path
-
+import pandas as pd
 if torch.cuda.device_count() >= 2:
     SUPIR_device = 'cuda'
     LLaVA_device = 'cuda'
@@ -21,6 +21,7 @@ else:
 # hyparams here
 parser = argparse.ArgumentParser()
 parser.add_argument("--img_dir", type=str)
+parser.add_argument("--metadata", type=str)
 parser.add_argument("--save_dir", type=str)
 parser.add_argument("--upscale", type=int, default=1)
 parser.add_argument("--SUPIR_sign", type=str, default='Q', choices=['F', 'Q'])
@@ -81,15 +82,15 @@ DEBUG = True
 print("-"*60)
 print("Start upscale image!")
 
-df = pd.read_csv('')
+df = pd.read_csv(args.metadata)
 
 # Process the selected images
 # NOTE: current code does not handling checking whether image is upscaled or not.
-for idx, row in enumerate(df.iterrows()):
-    img_path = row[1]['image_path']
-    upscale_factor = row[1]['upscale_factor']
-    
-    print(f"Upscaling {img_path}")
+for i, (idx, row) in enumerate(df.iterrows()):
+    img_path = row['image_path']
+    upscale = row['upscale_factor']
+
+    print(f"Upscaling {os.path.join(args.img_dir, img_path)} with {upscale}")
 
     LQ_ips = Image.open(img_path)
     width, height = LQ_ips.size
