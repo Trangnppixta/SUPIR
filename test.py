@@ -89,9 +89,9 @@ df = pd.read_csv(args.metadata)
 for i, (idx, row) in enumerate(df.iterrows()):
     id_image_name = row['image_path']
     img_path = os.path.join(args.img_dir, id_image_name)
-    upscale = row['upscale_factor']
+    upscale_factor = row['upscale_factor']
 
-    print(f"Upscaling {img_path} with {upscale}")
+    print(f"Upscaling {img_path} with {upscale_factor}")
 
     LQ_ips = Image.open(img_path)
     width, height = LQ_ips.size
@@ -101,13 +101,13 @@ for i, (idx, row) in enumerate(df.iterrows()):
     LQ_img = LQ_img.unsqueeze(0).to(SUPIR_device)[:, :3, :, :]
 
     # step 1: Pre-denoise for LLaVA, resize to 512
-    LQ_img_512, h1, w1 = PIL2Tensor(LQ_ips, upsacle=upscale, min_size=args.min_size, fix_resize=512)
+    LQ_img_512, h1, w1 = PIL2Tensor(LQ_ips, upsacle=upscale_factor, min_size=args.min_size, fix_resize=512)
     LQ_img_512 = LQ_img_512.unsqueeze(0).to(SUPIR_device)[:, :3, :, :]
     clean_imgs = model.batchify_denoise(LQ_img_512)
     clean_PIL_img = Tensor2PIL(clean_imgs[0], h1, w1)
 
     # step 3: Diffusion Process
-    samples = model.batchify_sample(LQ_img, captions, num_steps=args.edm_steps, restoration_scale=args.s_stage1, s_churn=args.s_churn,
+    samples = model.batchify_sample(LQ_img, num_steps=args.edm_steps, restoration_scale=args.s_stage1, s_churn=args.s_churn,
                                     s_noise=args.s_noise, cfg_scale=args.s_cfg, control_scale=args.s_stage2, seed=args.seed,
                                     num_samples=args.num_samples, p_p=args.a_prompt, n_p=args.n_prompt, color_fix_type=args.color_fix_type,
                                     use_linear_CFG=args.linear_CFG, use_linear_control_scale=args.linear_s_stage2,
